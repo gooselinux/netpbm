@@ -1,0 +1,12 @@
+diff -up netpbm-10.47.09/converter/other/Makefile.lz netpbm-10.47.09/converter/other/Makefile
+--- netpbm-10.47.09/converter/other/Makefile.lz	2010-02-18 09:09:34.000000000 +0100
++++ netpbm-10.47.09/converter/other/Makefile	2010-02-18 09:11:04.000000000 +0100
+@@ -151,7 +151,7 @@ tifftopnm pamtotiff pnmtotiffcmyk: %: %.
+ ifeq ($(shell libpng-config --version),)
+   PNGLIB_LIBOPTS = $(shell $(LIBOPT) $(LIBOPTR) $(PNGLIB) $(ZLIB))
+ else
+-  PNGLIB_LIBOPTS = $(shell libpng-config --ldflags)
++  PNGLIB_LIBOPTS = $(shell libpng-config --ldflags) -lz
+ endif
+ 
+ pngtopnm pngtopam: %: %.o $(NETPBMLIB) $(LIBOPT)

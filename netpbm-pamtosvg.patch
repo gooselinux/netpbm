@@ -1,0 +1,21 @@
+diff -up netpbm-10.47.05/converter/other/pamtosvg/vector.c.pamtosvg netpbm-10.47.05/converter/other/pamtosvg/vector.c
+--- netpbm-10.47.05/converter/other/pamtosvg/vector.c.pamtosvg	2009-12-10 08:34:36.000000000 +0100
++++ netpbm-10.47.05/converter/other/pamtosvg/vector.c	2010-05-11 17:58:13.761016344 +0200
+@@ -39,7 +39,7 @@ vector_to_point(vector_type const v) {
+ 
+     coord.x = v.dx;
+     coord.y = v.dy;
+-    coord.z = v.dz
++    coord.z = v.dz;
+ 
+     return coord;
+ }
+@@ -278,7 +278,7 @@ acos_d(float               const v,
+         vAdj = v;
+ 
+     errno = 0;
+-    a = acos(v);
++    a = acos(vAdj);
+     if (errno == ERANGE || errno == EDOM) {
+         at_exception_fatal(excepP, strerror(errno));
+         retval = 0.0;

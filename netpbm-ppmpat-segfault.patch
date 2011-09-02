@@ -1,0 +1,13 @@
+diff -up netpbm-10.47.04/lib/libppmd.c.ppmpat-segfault netpbm-10.47.04/lib/libppmd.c
+--- netpbm-10.47.04/lib/libppmd.c.ppmpat-segfault	2009-10-21 13:39:00.000000000 +0200
++++ netpbm-10.47.04/lib/libppmd.c	2009-11-27 06:31:32.000000000 +0100
+@@ -1057,8 +1057,8 @@ ppmd_fill_drawprocp(pixel **     const p
+         if (fh->coords == NULL)
+             pm_error("out of memory enlarging a fillhandle");
+ 
+-        ocp = &(fh->coords[fh->n - 1]);
+     }
++    ocp = &(fh->coords[fh->n - 1]);
+ 
+     /* Check for extremum and set the edge number. */
+     if (fh->n == 0) {

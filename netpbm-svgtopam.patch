@@ -1,0 +1,14 @@
+diff -up netpbm-10.35.67/converter/other/Makefile.svgtopam netpbm-10.35.67/converter/other/Makefile
+--- netpbm-10.35.67/converter/other/Makefile.svgtopam	2009-09-04 13:57:06.000000000 +0200
++++ netpbm-10.35.67/converter/other/Makefile	2009-09-04 14:09:00.000000000 +0200
+@@ -107,10 +107,6 @@ ifneq ($(ZLIB),NONE)
+   BINARIES += pnmtops
+ endif
+ 
+-ifneq ($(XML2_LIBS),NONE)
+-  BINARIES += svgtopam
+-endif 
+-
+ MERGEBINARIES = $(BINARIES)
+ 
+ EXTRA_OBJECTS = exif.o rast.o bmepsoe.o

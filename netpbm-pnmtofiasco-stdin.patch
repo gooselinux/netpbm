@@ -1,0 +1,105 @@
+diff -up netpbm-10.35.58/converter/other/fiasco/codec/coder.c.pnmtofiasco-stdin netpbm-10.35.58/converter/other/fiasco/codec/coder.c
+--- netpbm-10.35.58/converter/other/fiasco/codec/coder.c.pnmtofiasco-stdin	2009-01-19 09:23:57.000000000 +0100
++++ netpbm-10.35.58/converter/other/fiasco/codec/coder.c	2009-01-21 08:03:00.000000000 +0100
+@@ -213,15 +213,14 @@ alloc_coder (char const * const *inputna
+     */
+    {
+       char     *filename;
+-      int   	width, w = 0, height, h = 0;
++      int   	width, w = 0, height, h = 0, format;
+       bool_t	color, c = NO;
++      xelval maxval;
+       unsigned 	n;
+       
+       for (n = 0; (filename = get_input_image_name (inputname, n)); n++)
+       {
+           FILE *file;
+-          xelval maxval;
+-          int format;
+           if (filename == NULL)
+               file = stdin;
+           else
+@@ -251,6 +250,8 @@ alloc_coder (char const * const *inputna
+       wi->width  = w;
+       wi->height = h;
+       wi->color  = c;
++      wi->format = format;
++      wi->maxval = maxval;
+    }
+ 
+    /*
+@@ -642,7 +643,18 @@ video_coder (char const * const *image_t
+        */
+       future_frame   = frame == future_display;
+       c->mt->number   = frame;
+-      c->mt->original = read_image (image_name);
++      if (strcmp(image_name, "-")) {
++         c->mt->original = read_image (image_name);
++      } else { /* stdin is not seekable - read image contents without rewind */
++	 int width = wfa->wfainfo->width;
++	 int height = wfa->wfainfo->height;
++	 int color = wfa->wfainfo->color;
++	 int format = wfa->wfainfo->format;
++	 xelval maxval = wfa->wfainfo->maxval;
++
++	 c->mt->original = alloc_image(width, height, color, FORMAT_4_4_4);
++	 read_image_data(c->mt->original, stdin, color, width, height, maxval, format);
++      }
+       if (c->tiling->exponent && type == I_FRAME) 
+ 	 perform_tiling (c->mt->original, c->tiling);
+ 
+diff -up netpbm-10.35.58/converter/other/fiasco/codec/wfa.h.pnmtofiasco-stdin netpbm-10.35.58/converter/other/fiasco/codec/wfa.h
+--- netpbm-10.35.58/converter/other/fiasco/codec/wfa.h.pnmtofiasco-stdin	2009-01-19 09:23:57.000000000 +0100
++++ netpbm-10.35.58/converter/other/fiasco/codec/wfa.h	2009-01-21 08:03:28.000000000 +0100
+@@ -75,6 +75,7 @@ typedef struct range_info
+    unsigned level;			/* bintree level of range */
+ } range_info_t;
+ 
++#include "pnm.h"
+ #include "image.h"
+ #include "rpf.h"
+ #include "bit-io.h"
+@@ -93,6 +94,8 @@ typedef struct wfa_info
+    unsigned  width;			/* image width */
+    unsigned  height;			/* image height */
+    unsigned  level;			/* image level */
++   unsigned  format;			/* image format */
++   xelval    maxval;			/* image maximal pixel intensity value */
+    rpf_t    *rpf;			/* Standard reduced precision format */
+    rpf_t    *dc_rpf;			/* DC reduced precision format */
+    rpf_t    *d_rpf;			/* Delta reduced precision format */
+diff -up netpbm-10.35.58/converter/other/fiasco/lib/image.c.pnmtofiasco-stdin netpbm-10.35.58/converter/other/fiasco/lib/image.c
+--- netpbm-10.35.58/converter/other/fiasco/lib/image.c.pnmtofiasco-stdin	2009-01-19 09:23:57.000000000 +0100
++++ netpbm-10.35.58/converter/other/fiasco/lib/image.c	2009-01-21 08:01:53.000000000 +0100
+@@ -273,7 +273,7 @@ free_image (image_t *image)
+ }
+ 
+ 
+-static void 
++void 
+ read_image_data(image_t * const image, FILE *input, const bool_t color,
+                 const int width, const int height, const xelval maxval,
+                 const int format) {
+diff -up netpbm-10.35.58/converter/other/fiasco/lib/image.h.pnmtofiasco-stdin netpbm-10.35.58/converter/other/fiasco/lib/image.h
+--- netpbm-10.35.58/converter/other/fiasco/lib/image.h.pnmtofiasco-stdin	2009-01-19 09:23:57.000000000 +0100
++++ netpbm-10.35.58/converter/other/fiasco/lib/image.h	2009-01-21 08:02:29.000000000 +0100
+@@ -17,6 +17,8 @@
+ #ifndef _IMAGE_H
+ #define _IMAGE_H
+ 
++#include "pnm.h"
++
+ #include <stdio.h>
+ #include "types.h"
+ #include "fiasco.h"
+@@ -51,6 +53,10 @@ read_pnmheader (const char *image_name, 
+ image_t *
+ read_image (const char *image_name);
+ void
++read_image_data(image_t * const image, FILE *input, const bool_t color,
++                const int width, const int height, const xelval maxval,
++                const int format);
++void
+ write_image (const char *image_name, const image_t *image);
+ bool_t
+ same_image_type (const image_t *img1, const image_t *img2);
